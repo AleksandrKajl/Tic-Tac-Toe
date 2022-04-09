@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TicTacToe.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{f36c9fdb-2e6d-422c-9251-2b0d169b5c25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{800b2403-ef44-4025-ae8e-5b7f22c4e73e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{cc9644e6-527d-4ed0-8072-f43bcc5125fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Form">
+      <UniqueIdentifier>{2e8f7313-c873-45df-89fa-2aa126f7b42f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="TicTacToe.qrc">
+      <Filter>Resource</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="TicTacToe.h">
+      <Filter>Header</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="TicTacToe.ui">
+      <Filter>Form</Filter>
+    </QtUic>
+  </ItemGroup>
+</Project>
