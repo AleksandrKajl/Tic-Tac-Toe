@@ -1,7 +1,7 @@
 #include "TicTacToe.h"
 
 TicTacToe::TicTacToe(QWidget *parent)
-    : QLabel(parent)
+    : QWidget(parent)
 {
     ui.setupUi(this);
     this->resize(800, 600);
@@ -11,15 +11,36 @@ TicTacToe::TicTacToe(QWidget *parent)
     setPalette(pal);
 }
 
+void TicTacToe::sizeConversion()
+{
+    auto sz = this->size();
+    halfSz.setWidth(sz.width() / 2);
+    halfSz.setHeight(sz.height() / 2);
+    field.fieldStart.setX(halfSz.width() - HALF_FIELD);
+    field.fieldStart.setY(halfSz.height() - HALF_FIELD);
+    field.fieldEnd.setX(halfSz.width() + HALF_FIELD);
+    field.fieldEnd.setY(halfSz.height() + HALF_FIELD);
+}
+
 void TicTacToe::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
-    QPainter qp(this);
-    field.fieldStart.x = halfSz.widht - HALF_FIELD;
-    field.fieldStart.y = halfSz.height - HALF_FIELD;
-    field.fieldEnd.x = halfSz.widht + HALF_FIELD;
-    field.fieldEnd.y = halfSz.height + HALF_FIELD;
-    drawField(&qp);
+    sizeConversion();
+    initField(&qp);
+    if (!mClick.isNull())
+    {
+        qp.begin(this);
+        QPen pen(Qt::blue, 7, Qt::SolidLine);
+        qp.setPen(pen);
+//Draw cross
+        qp.drawLine(field.fieldStart.x() + cross.x(), field.fieldStart.y() + cross.y(), 
+            field.fieldStart.x() + cross.x() + CELL_SZ - DECREASE, field.fieldStart.y() + cross.y() + CELL_SZ - DECREASE);
+
+        qp.drawLine(field.fieldStart.x() + cross.x() + CELL_SZ - DECREASE, field.fieldStart.y() + cross.y(), 
+            field.fieldStart.x() + cross.x(), field.fieldStart.y() + cross.y() + CELL_SZ - DECREASE);
+
+        qp.end();
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -28,40 +49,50 @@ void TicTacToe::mousePressEvent(QMouseEvent* pe)
     mouseClick(pe);
 }
 
-void TicTacToe::drawField(QPainter* qp)
+void TicTacToe::initField(QPainter* qp)
 {
+    //for (auto& cell : cellArr)
+    //{
+    //    cell = field
+
+    //}
+
     QPen pen(Qt::red, 3, Qt::SolidLine);
+    qp->begin(this);
     qp->setPen(pen);
-    auto sz = this->size();
-    halfSz.widht = sz.width() / 2;
-    halfSz.height = sz.height() / 2;
+
 
     //Рисуем поле в высоту
     for (int i = 0, factor = 0; i < 4; i++)
     {
-        qp->drawLine(halfSz.widht - HALF_FIELD, halfSz.height - HALF_FIELD + factor, halfSz.widht + HALF_FIELD, halfSz.height - HALF_FIELD + factor);
-        factor += FIELD_SZ / 3;
+        qp->drawLine(halfSz.width() - HALF_FIELD, halfSz.height() - HALF_FIELD + factor, halfSz.width() + HALF_FIELD, halfSz.height() - HALF_FIELD + factor);
+        factor += CELL_SZ;
     }
 
     //Рисуем поле в ширину
     for (int i = 0, factor = 0; i < 4; i++)
     {
-        qp->drawLine(halfSz.widht - HALF_FIELD + factor, halfSz.height - HALF_FIELD, halfSz.widht - HALF_FIELD + factor, halfSz.height + HALF_FIELD);
-        factor += FIELD_SZ / 3;
+        qp->drawLine(halfSz.width() - HALF_FIELD + factor, halfSz.height() - HALF_FIELD, halfSz.width() - HALF_FIELD + factor, halfSz.height() + HALF_FIELD);
+        factor += CELL_SZ;
     }
+    qp->end();
+
 }
 
 void TicTacToe::mouseClick(QMouseEvent* pe)
 {
-    int mouseX = pe->position().x();
-    int mouseY = pe->position().y();
-    if ((mouseX > field.fieldStart.x && mouseY > field.fieldStart.y) &&
-        (mouseX < field.fieldEnd.x && mouseY < field.fieldEnd.y))
+    if ((pe->position().x() > field.fieldStart.x() && pe->position().y() > field.fieldStart.y()) &&
+        (pe->position().x() < field.fieldEnd.x() && pe->position().y() < field.fieldEnd.y()))
     {
-        
+        mClick.setX(pe->position().x());
+        mClick.setY(pe->position().y());
+        cross.setX((mClick.x() - field.fieldStart.x()) / CELL_SZ);
+        cross.setY((mClick.y() - field.fieldStart.y()) / CELL_SZ);
+        cross.setX(cross.x() * CELL_SZ + DECREASE / 2);
+        cross.setY(cross.y() * CELL_SZ + DECREASE / 2);
 
+        repaint();
     }
-
 
 }
 

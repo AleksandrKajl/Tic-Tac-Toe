@@ -4,7 +4,7 @@
 #include "QPainter"
 #include "ui_TicTacToe.h"
 
-class TicTacToe : public QLabel
+class TicTacToe : public QWidget
 {
     Q_OBJECT
 
@@ -13,39 +13,32 @@ public:
 
 private:
     Ui::TicTacToeClass ui;
-//Constants
+
+    QPainter qp;
+ //Constants
     const int FIELD_SZ = 402;
     const int HALF_FIELD = FIELD_SZ / 2;
     const int CELL_SZ = FIELD_SZ / 3;
+    const int DECREASE = 40;
 
-    struct HalfSz
-    {
-        int widht = 0;
-        int height = 0;
-    }halfSz;
+    QPoint mClick;
+    QSize halfSz;
+    QPoint cross;
 
 //Structure discribing the playing field
     struct Field
     {
-        struct FieldStart
-        {
-            int x;
-            int y;
-        }fieldStart;
-
-        struct FieldEnd
-        {
-            int x;
-            int y;
-        }fieldEnd;
+        QPoint fieldStart;
+        QPoint fieldEnd;
     }field;
+    
 
-    std::array<Field, 9> cellArr;
-
+//Metods
+    void sizeConversion();
 
 protected:
     void paintEvent(QPaintEvent* event)override;
-    void drawField(QPainter* qp);
+    void initField(QPainter* qp);
 
     void mousePressEvent(QMouseEvent* pe) override;
     void mouseReleaseEvent(QMouseEvent* pe) override;
