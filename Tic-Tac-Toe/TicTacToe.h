@@ -4,6 +4,8 @@
 #include "QPainter"
 #include "ui_TicTacToe.h"
 
+
+
 class TicTacToe : public QWidget
 {
     Q_OBJECT
@@ -20,6 +22,7 @@ private:
     const int HALF_FIELD = FIELD_SZ / 2;
     const int CELL_SZ = FIELD_SZ / 3;
     const int DECREASE = 40;
+    const int CELL_COUNT = 3;
 
     QPoint mClick;
     QSize halfSz;
@@ -32,6 +35,7 @@ private:
         QPoint fieldEnd;
     }field;
     
+    std::array<std::array<int, 3>, 3> fieldArr{0};
 
 //Metods
     void sizeConversion();

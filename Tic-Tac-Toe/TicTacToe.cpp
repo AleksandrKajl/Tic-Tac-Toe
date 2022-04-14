@@ -5,7 +5,7 @@ TicTacToe::TicTacToe(QWidget *parent)
 {
     ui.setupUi(this);
     this->resize(800, 600);
-    QPixmap bknd("Textures/sheet.png");
+    QPixmap bknd(":/resource/sheet.png");
     QPalette pal;
     pal.setBrush(QPalette::Window, bknd);
     setPalette(pal);
@@ -25,19 +25,39 @@ void TicTacToe::sizeConversion()
 void TicTacToe::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
+    //Получаем данные о размере окна
     sizeConversion();
+    //Рисуем поле для игры
     initField(&qp);
+
+    //Проверяем есть ли координаты для рисования хода
     if (!mClick.isNull())
     {
         qp.begin(this);
         QPen pen(Qt::blue, 7, Qt::SolidLine);
         qp.setPen(pen);
-//Draw cross
-        qp.drawLine(field.fieldStart.x() + cross.x(), field.fieldStart.y() + cross.y(), 
-            field.fieldStart.x() + cross.x() + CELL_SZ - DECREASE, field.fieldStart.y() + cross.y() + CELL_SZ - DECREASE);
+//Нарисовать ход
+        for (int i = 0; i < CELL_COUNT; ++i)
+        {
+            for (int j = 0; j < CELL_COUNT; ++j)
+            {
+                if (fieldArr[i][j])
+                {
+                    int x = j * CELL_SZ + DECREASE / 2;
+                    int y = i * CELL_SZ + DECREASE / 2;
+                    qp.drawLine(field.fieldStart.x() + x, field.fieldStart.y() + y,
+                        field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y + CELL_SZ - DECREASE);
 
-        qp.drawLine(field.fieldStart.x() + cross.x() + CELL_SZ - DECREASE, field.fieldStart.y() + cross.y(), 
-            field.fieldStart.x() + cross.x(), field.fieldStart.y() + cross.y() + CELL_SZ - DECREASE);
+                    qp.drawLine(field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y,
+                        field.fieldStart.x() + x, field.fieldStart.y() + y + CELL_SZ - DECREASE);
+                }
+            }
+        }
+
+
+
+        //qp.drawEllipse(field.fieldStart.x() + cross.x(), field.fieldStart.y() + cross.y(), 100, 100);
+
 
         qp.end();
     }
@@ -51,12 +71,6 @@ void TicTacToe::mousePressEvent(QMouseEvent* pe)
 
 void TicTacToe::initField(QPainter* qp)
 {
-    //for (auto& cell : cellArr)
-    //{
-    //    cell = field
-
-    //}
-
     QPen pen(Qt::red, 3, Qt::SolidLine);
     qp->begin(this);
     qp->setPen(pen);
@@ -76,11 +90,11 @@ void TicTacToe::initField(QPainter* qp)
         factor += CELL_SZ;
     }
     qp->end();
-
 }
 
 void TicTacToe::mouseClick(QMouseEvent* pe)
 {
+    //Проверяем был ли клик в игровом поле
     if ((pe->position().x() > field.fieldStart.x() && pe->position().y() > field.fieldStart.y()) &&
         (pe->position().x() < field.fieldEnd.x() && pe->position().y() < field.fieldEnd.y()))
     {
@@ -88,8 +102,9 @@ void TicTacToe::mouseClick(QMouseEvent* pe)
         mClick.setY(pe->position().y());
         cross.setX((mClick.x() - field.fieldStart.x()) / CELL_SZ);
         cross.setY((mClick.y() - field.fieldStart.y()) / CELL_SZ);
-        cross.setX(cross.x() * CELL_SZ + DECREASE / 2);
-        cross.setY(cross.y() * CELL_SZ + DECREASE / 2);
+        fieldArr[cross.y()][cross.x()] = 1;
+        //cross.setX(cross.x() * CELL_SZ + DECREASE / 2);
+        //cross.setY(cross.y() * CELL_SZ + DECREASE / 2);
 
         repaint();
     }
