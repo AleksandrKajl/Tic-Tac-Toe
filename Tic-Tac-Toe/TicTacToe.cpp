@@ -22,6 +22,8 @@ void TicTacToe::sizeConversion()
     field.fieldEnd.setY(halfSz.height() + HALF_FIELD);
 }
 
+
+
 void TicTacToe::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
@@ -31,35 +33,77 @@ void TicTacToe::paintEvent(QPaintEvent* event)
     initField(&qp);
 
     //Проверяем есть ли координаты для рисования хода
-    if (!mClick.isNull())
+    qp.begin(this);
+    QPen pen(Qt::blue, 7, Qt::SolidLine);
+    qp.setPen(pen);
+
+//Нарисовать ход игрока
+    for (int i = 0; i < CELL_COUNT; ++i)
     {
-        qp.begin(this);
-        QPen pen(Qt::blue, 7, Qt::SolidLine);
-        qp.setPen(pen);
-//Нарисовать ход
+        for (int j = 0; j < CELL_COUNT; ++j)
+        {
+            if (fieldArr[i][j] == 1)
+            {
+                int x = j * CELL_SZ + DECREASE / 2;
+                int y = i * CELL_SZ + DECREASE / 2;
+                qp.drawLine(field.fieldStart.x() + x, field.fieldStart.y() + y,
+                    field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y + CELL_SZ - DECREASE);
+
+                qp.drawLine(field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y,
+                    field.fieldStart.x() + x, field.fieldStart.y() + y + CELL_SZ - DECREASE);
+            }
+        }
+    }
+
+//Ход компьютера
+    if(gameProgress)
+        moveAI();
+
+    gameProgress = false;
+
+//Рисуем ход компьютера
+    for (int i = 0; i < CELL_COUNT; ++i)
+    {
+        for (int j = 0; j < CELL_COUNT; ++j)
+        {
+            if (fieldArr[i][j] == 2)
+            {
+                int x = j * CELL_SZ + DECREASE / 2;
+                int y = i * CELL_SZ + DECREASE / 2;
+                qp.drawEllipse(field.fieldStart.x() + x, field.fieldStart.y() + y, 100, 100);
+            }
+        }
+    }
+
+    qp.end();
+}
+
+void TicTacToe::moveAI()
+{
+    if (fieldArr[1][1] == 0)
+        fieldArr[1][1] = 2;
+    else if (fieldArr[0][0] == 0)
+        fieldArr[0][0] = 2;
+    else if (fieldArr[2][0] == 0)
+        fieldArr[2][0] = 2;
+    else if (fieldArr[2][2] == 0)
+        fieldArr[2][2] = 2;
+    else if (fieldArr[0][2] == 0)
+        fieldArr[0][2] = 2;
+    else
+    {
         for (int i = 0; i < CELL_COUNT; ++i)
         {
             for (int j = 0; j < CELL_COUNT; ++j)
             {
-                if (fieldArr[i][j])
+                if (fieldArr[i][j] == 0)
                 {
-                    int x = j * CELL_SZ + DECREASE / 2;
-                    int y = i * CELL_SZ + DECREASE / 2;
-                    qp.drawLine(field.fieldStart.x() + x, field.fieldStart.y() + y,
-                        field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y + CELL_SZ - DECREASE);
-
-                    qp.drawLine(field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y,
-                        field.fieldStart.x() + x, field.fieldStart.y() + y + CELL_SZ - DECREASE);
+                    fieldArr[i][j] = 2;
+                    return;
                 }
+                    
             }
         }
-
-
-
-        //qp.drawEllipse(field.fieldStart.x() + cross.x(), field.fieldStart.y() + cross.y(), 100, 100);
-
-
-        qp.end();
     }
 }
 
@@ -103,9 +147,7 @@ void TicTacToe::mouseClick(QMouseEvent* pe)
         cross.setX((mClick.x() - field.fieldStart.x()) / CELL_SZ);
         cross.setY((mClick.y() - field.fieldStart.y()) / CELL_SZ);
         fieldArr[cross.y()][cross.x()] = 1;
-        //cross.setX(cross.x() * CELL_SZ + DECREASE / 2);
-        //cross.setY(cross.y() * CELL_SZ + DECREASE / 2);
-
+        gameProgress = true;
         repaint();
     }
 

@@ -27,6 +27,7 @@ private:
     QPoint mClick;
     QSize halfSz;
     QPoint cross;
+    bool gameProgress = false;
 
 //Structure discribing the playing field
     struct Field
@@ -35,18 +36,21 @@ private:
         QPoint fieldEnd;
     }field;
     
+    //Массив для хронения ходов
     std::array<std::array<int, 3>, 3> fieldArr{0};
 
 //Metods
     void sizeConversion();
+    void mouseClick(QMouseEvent* pe);
+    void initField(QPainter* qp);
+    void moveAI();
 
 protected:
     void paintEvent(QPaintEvent* event)override;
-    void initField(QPainter* qp);
+    
 
     void mousePressEvent(QMouseEvent* pe) override;
     void mouseReleaseEvent(QMouseEvent* pe) override;
     void mouseMoveEvent(QMouseEvent* pe) override;
 
-    void mouseClick(QMouseEvent* pe);
 };
