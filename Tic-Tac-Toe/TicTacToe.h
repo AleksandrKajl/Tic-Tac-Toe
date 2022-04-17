@@ -4,8 +4,6 @@
 #include "QPainter"
 #include "ui_TicTacToe.h"
 
-
-
 class TicTacToe : public QWidget
 {
     Q_OBJECT
