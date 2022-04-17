@@ -1,5 +1,6 @@
 #pragma once
-#include<qwidget.h>
+#include<QtWidgets>
+#include<QPainter>
 
 class DrawFrame : public QWidget
 {
@@ -12,15 +13,25 @@ protected:
     const int DECREASE = 40;
     const int CELL_COUNT = 3;
 
+    QPoint mClick;
+    QPoint cross;
     QSize halfSz;
     struct Field
     {
         QPoint fieldStart;
         QPoint fieldEnd;
     }field;
+    QPainter qp;
+    //Массив для хронения ходов
+    std::array<std::array<int, 3>, 3> fieldArr{ 0 };
+    bool gameProgress = false;
 
     void paintEvent(QPaintEvent* event)override;
-    virtual void Draw() = 0;
+    void mousePressEvent(QMouseEvent* pe) override;
+    //virtual void Draw() = 0;
     void sizeConversion();
-    void initField(QPainter* qp);
+    void initField();
+    void moveAI();
+    void mouseClick(QMouseEvent* pe);
+
 };
