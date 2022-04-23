@@ -7,9 +7,6 @@
     <ClCompile Include="TicTacToe.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="DrawFrame.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">
@@ -41,9 +38,6 @@
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DrawFrame.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="DrawField.h">
       <Filter>Header</Filter>
     </ClInclude>
