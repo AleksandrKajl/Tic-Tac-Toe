@@ -1,5 +1,6 @@
 #include "TicTacToe.h"
 
+
 TicTacToe::TicTacToe(QWidget *parent)
     : QWidget(parent)
 {
@@ -59,12 +60,18 @@ void TicTacToe::paintEvent(QPaintEvent* event)
     QPen pen(Qt::blue, 7, Qt::SolidLine);
     qp.setPen(pen);
 
+    auto win = isWin();
+    if (win == Cell::CROSS)
+    {
+
+    }
+
     //Нарисовать ход игрока
     for (int i = 0; i < CELL_COUNT; ++i)
     {
         for (int j = 0; j < CELL_COUNT; ++j)
         {
-            if (fieldArr[i][j] == 1)
+            if (fieldArr[i][j] == Cell::CROSS)
             {
                 int x = j * CELL_SZ + DECREASE / 2;
                 int y = i * CELL_SZ + DECREASE / 2;
@@ -77,6 +84,8 @@ void TicTacToe::paintEvent(QPaintEvent* event)
         }
     }
 
+    
+
     //Ход компьютера
     if (gameProgress)
         moveAI();
@@ -88,7 +97,7 @@ void TicTacToe::paintEvent(QPaintEvent* event)
     {
         for (int j = 0; j < CELL_COUNT; ++j)
         {
-            if (fieldArr[i][j] == 2)
+            if (fieldArr[i][j] == Cell::ZERO)
             {
                 int x = j * CELL_SZ + DECREASE / 2;
                 int y = i * CELL_SZ + DECREASE / 2;
@@ -103,25 +112,25 @@ void TicTacToe::paintEvent(QPaintEvent* event)
 
 void TicTacToe::moveAI()
 {
-    if (fieldArr[1][1] == 0)
-        fieldArr[1][1] = 2;
-    else if (fieldArr[0][0] == 0)
-        fieldArr[0][0] = 2;
-    else if (fieldArr[2][0] == 0)
-        fieldArr[2][0] = 2;
-    else if (fieldArr[2][2] == 0)
-        fieldArr[2][2] = 2;
-    else if (fieldArr[0][2] == 0)
-        fieldArr[0][2] = 2;
+    if (fieldArr[1][1] == Cell::EMPTY)
+        fieldArr[1][1] = Cell::ZERO;
+    else if (fieldArr[0][0] == Cell::EMPTY)
+        fieldArr[0][0] = Cell::ZERO;
+    else if (fieldArr[2][0] == Cell::EMPTY)
+        fieldArr[2][0] = Cell::ZERO;
+    else if (fieldArr[2][2] == Cell::EMPTY)
+        fieldArr[2][2] = Cell::ZERO;
+    else if (fieldArr[0][2] == Cell::EMPTY)
+        fieldArr[0][2] = Cell::ZERO;
     else
     {
         for (int i = 0; i < CELL_COUNT; ++i)
         {
             for (int j = 0; j < CELL_COUNT; ++j)
             {
-                if (fieldArr[i][j] == 0)
+                if (fieldArr[i][j] == Cell::EMPTY)
                 {
-                    fieldArr[i][j] = 2;
+                    fieldArr[i][j] = Cell::ZERO;
                     return;
                 }
             }
@@ -145,22 +154,62 @@ void TicTacToe::mouseClick(QMouseEvent* pe)
         mClick.setY(pe->position().y());
         cross.setX((mClick.x() - field.fieldStart.x()) / CELL_SZ);
         cross.setY((mClick.y() - field.fieldStart.y()) / CELL_SZ);
-        fieldArr[cross.y()][cross.x()] = 1;
+        fieldArr[cross.y()][cross.x()] = Cell::CROSS;
         gameProgress = true;
         repaint();
     }
 
 }
 
-// ----------------------------------------------------------------------
-void TicTacToe::mouseReleaseEvent(QMouseEvent* pe)
+Cell TicTacToe::isWin()
 {
+    //Проверка выигрыша по строкам 
+    for (int i = 0; i < CELL_COUNT - 1; ++i)
+    {
+        for (int j = 0, count = 0; j < CELL_COUNT - 1; ++j)
+        {
+            if (fieldArr[i][j] == fieldArr[i][j + 1] && fieldArr[i][j] != Cell::EMPTY)
+                count++;
+            if (count == CELL_COUNT - 1)
+                return fieldArr[i][j];
 
-}
-// ----------------------------------------------------------------------
-void TicTacToe::mouseMoveEvent(QMouseEvent* pe)
-{
+        }
+    }
 
+    //Проверка выигрыша по столбцам 
+    for (int i = 0, count = 0; i < CELL_COUNT - 1; ++i)
+    {
+        for (int j = 0; j < CELL_COUNT - 1; ++j)
+        {
+            if (fieldArr[j][i] == fieldArr[j + 1][i] && fieldArr[j][i] != Cell::EMPTY)
+                count++;
+            if (count == CELL_COUNT - 1)
+                return fieldArr[j][i];
+        }
+    }
+
+    //Проверка выигрыша наискосок с левой стороны на правую
+    for (int i = 0, count = 0; i < CELL_COUNT - 1; ++i)
+    {
+
+        if (fieldArr[i][i] == fieldArr[i + 1][i + 1] && fieldArr[i][i] != Cell::EMPTY)
+            count++;
+        if (count == CELL_COUNT - 1)
+            return fieldArr[i][i];
+    }
+
+    //Проверка выигрыша наискосок с правой стороны на левую
+    for (int i = CELL_COUNT - 1, count = 0; i > 0; --i)
+    {
+
+        if (fieldArr[i][i] == fieldArr[i - 1][i - 1] && fieldArr[i][i] != Cell::EMPTY)
+            count++;
+        if (count == CELL_COUNT - 1)
+            return fieldArr[i][i];
+    }
+
+    return Cell::EMPTY;
 }
+
 
 
