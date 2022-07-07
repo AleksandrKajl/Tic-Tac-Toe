@@ -11,6 +11,7 @@ TicTacToe::TicTacToe(QWidget *parent)
     setPalette(pal);
 }
 
+//ѕолучени€ кординат пол€ в зависимости от размера окна
 void TicTacToe::sizeConversion()
 {
     auto sz = this->size();
@@ -32,7 +33,7 @@ void TicTacToe::paintEvent(QPaintEvent* event)
     //–исуем поле дл€ игры
     initField(&qp);
 
-    //ѕровер€ем есть ли координаты дл€ рисовани€ хода
+
     qp.begin(this);
     QPen pen(Qt::blue, 7, Qt::SolidLine);
     qp.setPen(pen);
