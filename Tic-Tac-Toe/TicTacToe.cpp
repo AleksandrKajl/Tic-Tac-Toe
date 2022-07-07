@@ -1,4 +1,5 @@
 #include "TicTacToe.h"
+#include<QDebug>
 
 
 TicTacToe::TicTacToe(QWidget *parent)
@@ -6,15 +7,85 @@ TicTacToe::TicTacToe(QWidget *parent)
 {
     ui.setupUi(this);
     this->resize(800, 600);
+    //Фон
     QPixmap bknd(":/resource/sheet.png");
     QPalette pal;
     pal.setBrush(QPalette::Window, bknd);
     setPalette(pal);
 }
 
+void TicTacToe::paintEvent(QPaintEvent* event)
+{
+    Q_UNUSED(event);
+    //Получаем данные о размере окна
+    sizeConversion();
+    //Рисуем поле для игры
+    initField();
+
+    
+    qp.begin(this);
+    QPen pen(Qt::blue, 7, Qt::SolidLine);
+    qp.setPen(pen);
+
+    //Нарисовать ход игрока
+    for (int i = 0; i < CELL_COUNT; ++i)
+    {
+        for (int j = 0; j < CELL_COUNT; ++j)
+        {
+            if (fieldArr[i][j] == Cell::CROSS)
+            {
+                int x = j * CELL_SZ + DECREASE / 2;
+                int y = i * CELL_SZ + DECREASE / 2;
+                qp.drawLine(field.fieldStart.x() + x, field.fieldStart.y() + y,
+                    field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y + CELL_SZ - DECREASE);
+
+                qp.drawLine(field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y,
+                    field.fieldStart.x() + x, field.fieldStart.y() + y + CELL_SZ - DECREASE);
+            }
+        }
+    }
+
+    auto win = isWin();
+    if (win == Cell::CROSS)
+    {
+        gameProgress = false;
+        QPen pen(Qt::red, 7, Qt::SolidLine);
+        qp.setPen(pen);
+        qp.setFont(QFont("Times", 50, QFont::Normal));
+        qp.drawText(200, 50, "You win!");
+    }
+
+
+
+    //Ход компьютера
+    if (gameProgress)
+    {
+        moveAI();
+
+        //Рисуем ход компьютера
+        for (int i = 0; i < CELL_COUNT; ++i)
+        {
+            for (int j = 0; j < CELL_COUNT; ++j)
+            {
+                if (fieldArr[i][j] == Cell::ZERO)
+                {
+                    int x = j * CELL_SZ + DECREASE / 2;
+                    int y = i * CELL_SZ + DECREASE / 2;
+                    qp.drawEllipse(field.fieldStart.x() + x, field.fieldStart.y() + y, 100, 100);
+                }
+            }
+        }
+
+    }
+    gameProgress = false;
+
+    qp.end();
+
+}
 
 void TicTacToe::sizeConversion()
 {
+
     auto sz = this->size();
     halfSz.setWidth(sz.width() / 2);
     halfSz.setHeight(sz.height() / 2);
@@ -47,68 +118,7 @@ void TicTacToe::initField()
     qp.end();
 }
 
-void TicTacToe::paintEvent(QPaintEvent* event)
-{
-    Q_UNUSED(event);
-    //Получаем данные о размере окна
-    sizeConversion();
-    //Рисуем поле для игры
-    initField();
 
-    //Проверяем есть ли координаты для рисования хода
-    qp.begin(this);
-    QPen pen(Qt::blue, 7, Qt::SolidLine);
-    qp.setPen(pen);
-
-    auto win = isWin();
-    if (win == Cell::CROSS)
-    {
-
-    }
-
-    //Нарисовать ход игрока
-    for (int i = 0; i < CELL_COUNT; ++i)
-    {
-        for (int j = 0; j < CELL_COUNT; ++j)
-        {
-            if (fieldArr[i][j] == Cell::CROSS)
-            {
-                int x = j * CELL_SZ + DECREASE / 2;
-                int y = i * CELL_SZ + DECREASE / 2;
-                qp.drawLine(field.fieldStart.x() + x, field.fieldStart.y() + y,
-                    field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y + CELL_SZ - DECREASE);
-
-                qp.drawLine(field.fieldStart.x() + x + CELL_SZ - DECREASE, field.fieldStart.y() + y,
-                    field.fieldStart.x() + x, field.fieldStart.y() + y + CELL_SZ - DECREASE);
-            }
-        }
-    }
-
-    
-
-    //Ход компьютера
-    if (gameProgress)
-        moveAI();
-
-    gameProgress = false;
-
-    //Рисуем ход компьютера
-    for (int i = 0; i < CELL_COUNT; ++i)
-    {
-        for (int j = 0; j < CELL_COUNT; ++j)
-        {
-            if (fieldArr[i][j] == Cell::ZERO)
-            {
-                int x = j * CELL_SZ + DECREASE / 2;
-                int y = i * CELL_SZ + DECREASE / 2;
-                qp.drawEllipse(field.fieldStart.x() + x, field.fieldStart.y() + y, 100, 100);
-            }
-        }
-    }
-
-    qp.end();
-
-}
 
 void TicTacToe::moveAI()
 {
@@ -164,52 +174,69 @@ void TicTacToe::mouseClick(QMouseEvent* pe)
 Cell TicTacToe::isWin()
 {
     //Проверка выигрыша по строкам 
-    for (int i = 0; i < CELL_COUNT - 1; ++i)
+    for (int i = 0; i < CELL_COUNT; ++i)
     {
         for (int j = 0, count = 0; j < CELL_COUNT - 1; ++j)
         {
             if (fieldArr[i][j] == fieldArr[i][j + 1] && fieldArr[i][j] != Cell::EMPTY)
                 count++;
+            //else
+            //  break;
             if (count == CELL_COUNT - 1)
+            {
+                count = 0;
                 return fieldArr[i][j];
+            }
 
         }
     }
 
     //Проверка выигрыша по столбцам 
-    for (int i = 0, count = 0; i < CELL_COUNT - 1; ++i)
+    for (int i = 0, count = 0; i < CELL_COUNT; ++i)
     {
         for (int j = 0; j < CELL_COUNT - 1; ++j)
         {
             if (fieldArr[j][i] == fieldArr[j + 1][i] && fieldArr[j][i] != Cell::EMPTY)
                 count++;
+            //else
+            //  break;
             if (count == CELL_COUNT - 1)
+            {
+                count = 0;
                 return fieldArr[j][i];
+            }
         }
     }
 
     //Проверка выигрыша наискосок с левой стороны на правую
     for (int i = 0, count = 0; i < CELL_COUNT - 1; ++i)
     {
-
         if (fieldArr[i][i] == fieldArr[i + 1][i + 1] && fieldArr[i][i] != Cell::EMPTY)
             count++;
+        //else
+        //  break;
         if (count == CELL_COUNT - 1)
+        {
+            count = 0;
             return fieldArr[i][i];
+        }
     }
 
     //Проверка выигрыша наискосок с правой стороны на левую
-    for (int i = CELL_COUNT - 1, count = 0; i > 0; --i)
+    for (int i = 0, j = CELL_COUNT - 1, count = 0; i < CELL_COUNT - 1; ++i, --j)
     {
 
-        if (fieldArr[i][i] == fieldArr[i - 1][i - 1] && fieldArr[i][i] != Cell::EMPTY)
+        if (fieldArr[i][j] == fieldArr[i + 1][j - 1] && fieldArr[i][j] != Cell::EMPTY)
             count++;
+        //else
+        //  break;
         if (count == CELL_COUNT - 1)
+        {
+            count = 0;
             return fieldArr[i][i];
+        }
     }
 
     return Cell::EMPTY;
 }
-
-
 
