@@ -37,4 +37,9 @@
       <Filter>Form</Filter>
     </QtUic>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DrawField.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
