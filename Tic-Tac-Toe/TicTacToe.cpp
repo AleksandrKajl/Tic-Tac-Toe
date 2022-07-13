@@ -3,8 +3,12 @@
 
 
 TicTacToe::TicTacToe(QWidget *parent)
-    : QWidget(parent)
+    : bluePen7(Qt::blue, 7, Qt::SolidLine),
+      redPen7(Qt::red, 7, Qt::SolidLine),
+      redPen3(Qt::red, 3, Qt::SolidLine),
+      QWidget(parent)
 {
+
     ui.setupUi(this);
     this->resize(800, 600);
     //Фон
@@ -14,6 +18,14 @@ TicTacToe::TicTacToe(QWidget *parent)
     setPalette(pal);
 }
 
+void TicTacToe::drawText(int textX, int textY, QString str)
+{
+    qp.setPen(redPen7);
+    qp.setFont(QFont("Times", 50, QFont::Normal));
+    qp.drawText(textX, textY, str);
+}
+
+//Виртуальный метод перерисовки экрана
 void TicTacToe::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
@@ -24,8 +36,7 @@ void TicTacToe::paintEvent(QPaintEvent* event)
 
     
     qp.begin(this);
-    QPen pen(Qt::blue, 7, Qt::SolidLine);
-    qp.setPen(pen);
+    qp.setPen(bluePen7);
 
     //Нарисовать ход игрока
     for (int i = 0; i < CELL_COUNT; ++i)
@@ -45,47 +56,48 @@ void TicTacToe::paintEvent(QPaintEvent* event)
         }
     }
 
-    auto win = isWin();
-    if (win == Cell::CROSS)
+    if (isWin() == Cell::CROSS)
     {
         gameProgress = false;
-        QPen pen(Qt::red, 7, Qt::SolidLine);
-        qp.setPen(pen);
-        qp.setFont(QFont("Times", 50, QFont::Normal));
-        qp.drawText(200, 50, "You win!");
+        drawText(200, 60, "You Win!");
+        qp.setPen(bluePen7);
+        gameOver = true;
     }
-
-
 
     //Ход компьютера
     if (gameProgress)
-    {
         moveAI();
 
-        //Рисуем ход компьютера
-        for (int i = 0; i < CELL_COUNT; ++i)
+    //Рисуем ход компьютера
+    for (int i = 0; i < CELL_COUNT; ++i)
+    {
+        for (int j = 0; j < CELL_COUNT; ++j)
         {
-            for (int j = 0; j < CELL_COUNT; ++j)
+            if (fieldArr[i][j] == Cell::ZERO)
             {
-                if (fieldArr[i][j] == Cell::ZERO)
-                {
-                    int x = j * CELL_SZ + DECREASE / 2;
-                    int y = i * CELL_SZ + DECREASE / 2;
-                    qp.drawEllipse(field.fieldStart.x() + x, field.fieldStart.y() + y, 100, 100);
-                }
+                int x = j * CELL_SZ + DECREASE / 2;
+                int y = i * CELL_SZ + DECREASE / 2;
+                qp.drawEllipse(field.fieldStart.x() + x, field.fieldStart.y() + y, 100, 100);
             }
         }
-
     }
+
+   // win = isWin();
+    if (isWin() == Cell::ZERO)
+    {
+        drawText(200, 60, "AI Win!");
+        gameOver = true;
+    }
+
     gameProgress = false;
 
     qp.end();
 
 }
 
+//Получения кординат поля в зависимости от размера окна
 void TicTacToe::sizeConversion()
 {
-
     auto sz = this->size();
     halfSz.setWidth(sz.width() / 2);
     halfSz.setHeight(sz.height() / 2);
@@ -95,11 +107,11 @@ void TicTacToe::sizeConversion()
     field.fieldEnd.setY(halfSz.height() + HALF_FIELD);
 }
 
+//Метод для рисования поля для игры
 void TicTacToe::initField()
 {
-    QPen pen(Qt::red, 3, Qt::SolidLine);
     qp.begin(this);
-    qp.setPen(pen);
+    qp.setPen(redPen3);
 
 
     //Рисуем поле в высоту
@@ -119,7 +131,7 @@ void TicTacToe::initField()
 }
 
 
-
+//Ход AI
 void TicTacToe::moveAI()
 {
     if (fieldArr[1][1] == Cell::EMPTY)
@@ -148,29 +160,41 @@ void TicTacToe::moveAI()
     }
 }
 
-// ----------------------------------------------------------------------
+// Виртуальный метод получения событий от мыши
 void TicTacToe::mousePressEvent(QMouseEvent* pe)
 {
     mouseClick(pe);
 }
 
+//Обработка нажатия мыши
 void TicTacToe::mouseClick(QMouseEvent* pe)
 {
-    //Проверяем был ли клик в игровом поле
-    if ((pe->position().x() > field.fieldStart.x() && pe->position().y() > field.fieldStart.y()) &&
-        (pe->position().x() < field.fieldEnd.x() && pe->position().y() < field.fieldEnd.y()))
+    if (!gameOver)
     {
-        mClick.setX(pe->position().x());
-        mClick.setY(pe->position().y());
-        cross.setX((mClick.x() - field.fieldStart.x()) / CELL_SZ);
-        cross.setY((mClick.y() - field.fieldStart.y()) / CELL_SZ);
-        fieldArr[cross.y()][cross.x()] = Cell::CROSS;
-        gameProgress = true;
-        repaint();
+        //Проверяем был ли клик в игровом поле
+        if ((pe->position().x() > field.fieldStart.x() && pe->position().y() > field.fieldStart.y()) &&
+            (pe->position().x() < field.fieldEnd.x() && pe->position().y() < field.fieldEnd.y()))
+        {
+            mClick.setX(pe->position().x());
+            mClick.setY(pe->position().y());
+            cross.setX((mClick.x() - field.fieldStart.x()) / CELL_SZ);
+            cross.setY((mClick.y() - field.fieldStart.y()) / CELL_SZ);
+
+            if (fieldArr[cross.y()][cross.x()] == Cell::EMPTY)
+            {
+                fieldArr[cross.y()][cross.x()] = Cell::CROSS;
+                gameProgress = true;
+            }
+
+
+            repaint();
+        }
     }
+
 
 }
 
+// Проверка выигрыша
 Cell TicTacToe::isWin()
 {
     //Проверка выигрыша по строкам 
@@ -192,9 +216,9 @@ Cell TicTacToe::isWin()
     }
 
     //Проверка выигрыша по столбцам 
-    for (int i = 0, count = 0; i < CELL_COUNT; ++i)
+    for (int i = 0; i < CELL_COUNT; ++i)
     {
-        for (int j = 0; j < CELL_COUNT - 1; ++j)
+        for (int j = 0, count = 0; j < CELL_COUNT - 1; ++j)
         {
             if (fieldArr[j][i] == fieldArr[j + 1][i] && fieldArr[j][i] != Cell::EMPTY)
                 count++;
@@ -202,7 +226,7 @@ Cell TicTacToe::isWin()
             //  break;
             if (count == CELL_COUNT - 1)
             {
-                count = 0;
+            
                 return fieldArr[j][i];
             }
         }
@@ -217,7 +241,7 @@ Cell TicTacToe::isWin()
         //  break;
         if (count == CELL_COUNT - 1)
         {
-            count = 0;
+            //count = 0;
             return fieldArr[i][i];
         }
     }
@@ -232,7 +256,7 @@ Cell TicTacToe::isWin()
         //  break;
         if (count == CELL_COUNT - 1)
         {
-            count = 0;
+            //count = 0;
             return fieldArr[i][i];
         }
     }

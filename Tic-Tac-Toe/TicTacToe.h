@@ -42,6 +42,10 @@ private:
     bool gameProgress = false;
     int gameStep = 0;
 
+    QPen bluePen7;
+    QPen redPen7;
+    QPen redPen3;
+    
     QPoint mClick;
     QPoint cross;
     QSize halfSz;
@@ -61,6 +65,8 @@ private:
     void moveAI();
     void mouseClick(QMouseEvent* pe);
     Cell isWin();
+    bool gameOver = false;
+    void drawText(int textX, int textY, QString str);
 
 protected:
     //Virtual methods
